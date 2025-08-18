@@ -186,7 +186,15 @@ class exam31_ticket extends CModule
 			'OnUserTypeBuildList',
 			$this->MODULE_ID,
 			'Exam31\\Ticket\\ExamFieldType',
-			'getUserTypeDescription'
+			'addUrlSidePanel'
+		);
+
+		$eventManager->registerEventHandlerCompatible(
+			'main',
+			'OnProlog',
+			$this->MODULE_ID,
+			'Exam31\\Ticket\\SidePanel\\SideConfiguration',
+			'addUrlSidePanel'
 		);
 	}
 
