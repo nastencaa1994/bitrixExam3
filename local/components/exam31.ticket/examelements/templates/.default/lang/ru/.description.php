@@ -1,2 +1,0 @@
-<?php
-$MESS['EXAM31_ELEMENTS_COMPONENT_NAME'] = 'Элементы';

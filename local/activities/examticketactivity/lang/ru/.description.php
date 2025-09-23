@@ -1,5 +1,0 @@
-<?if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED!==true) die();
-$MESS['EXAM31_TICKET_ACTIVITY_DESCR_NAME'] = 'Экзамен - Билет';
-$MESS['EXAM31_TICKET_ACTIVITY_DESCR_DESCR'] = 'Экзамен - Билет - Описание';
-$MESS['EXAM31_TICKET_ACTIVITY_RESULT_ID'] = 'ID';
-$MESS['EXAM31_TICKET_ACTIVITY_RESULT_DEMO_VALUE'] = 'Демо поле';

@@ -10,19 +10,15 @@ use Bitrix\Main\Diag\Debug;
  * @var array $arResult
  */
 ?>
-
-<?
-//Debug::dump($arResult['DISPLAY_ELEMENT']);
-?>
 <div class="ui-slider-section">
-	<? if (!empty($arResult['ELEMENT'])): ?>
-		<? foreach ($arResult['ELEMENT'] as $value): ?>
+	<? if (!empty($arResult['ELEMENTS'])): ?>
+		<? foreach ($arResult['ELEMENTS'] as $item): ?>
 			<div class="ui-slider-content-box">
-				<p class="ui-slider-paragraph"><?= $value ?></p>
+				<p class="ui-slider-paragraph"><?=$item['TITLE']?></p>
 			</div>
 		<? endforeach; ?>
 	<? endif; ?>
 	<div class="ui-slider-content-box">
-		<p class="ui-slider-paragraph"><a href="<?= $arResult['LIST_PAGE_URL'] ?>"><?= Loc::getMessage('EXAM31_ELEMENT_DETAIL_BACK_TO_LIST') ?></a></p>
+		<p class="ui-slider-paragraph"><a href="<?= $arResult['LIST_PAGE_URL'] ?>"><?= Loc::getMessage('EXAM31_ELEMENT_INFO_BACK_TO_LIST') ?></a></p>
 	</div>
 </div>

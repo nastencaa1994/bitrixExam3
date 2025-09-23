@@ -1,0 +1,2 @@
+<?php
+$MESS['EXAM31_ELEMENT_INFO_BACK_TO_LIST'] = 'ЗАКРЫТЬ';

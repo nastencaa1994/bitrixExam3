@@ -57,7 +57,7 @@ class ExamElementsDetailComponent extends CBitrixComponent implements Controller
 			return;
 		}
 
-		//flat
+		//.default
 		$this->arResult['ELEMENT'] = $this->getEntityData();
 
 		//form
@@ -200,7 +200,7 @@ class ExamElementsDetailComponent extends CBitrixComponent implements Controller
 			return AjaxJson::createSuccess([
 				'ENTITY_ID' => $element['ID'],
 				//REDIRECT_URL необходим для корректной работы формы в слайдере
-				//'REDIRECT_URL' => $this->getDetailPageUrl($element['ID']),
+				'REDIRECT_URL' => $this->getDetailPageUrl($element['ID']),
 			]);
 		}
 		catch (SystemException $exception)

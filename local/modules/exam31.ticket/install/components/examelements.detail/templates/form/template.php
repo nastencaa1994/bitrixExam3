@@ -7,7 +7,6 @@ use Bitrix\Main\Localization\Loc;
  * @var array $arResult
  */
 ?>
-
 <?
 $APPLICATION->IncludeComponent(
 	'bitrix:ui.form',

@@ -10,7 +10,8 @@ class SomeElementsComponent extends CBitrixComponent
 	const DEFAULT_PAGE = 'list';
 	const DEFAULT_URL_TEMPLATES = [
 		'list' => '',
-		'detail' => 'detail/#ID#/'
+		'detail' => 'detail/#ID#/',
+        'info' => 'info/#ID#/'
 	];
 
 	public function __construct($component = null)
@@ -41,11 +42,11 @@ class SomeElementsComponent extends CBitrixComponent
 			$urlTemplates,
 			$variables,
 		);
-
 		$this->arResult = [
 			'FOLDER' => $this->arParams['SEF_FOLDER'],
 			'LIST_PAGE_URL' => $this->arParams['SEF_FOLDER'] . $urlTemplates['list'],
 			'DETAIL_PAGE_URL' => $this->arParams['SEF_FOLDER'] . $urlTemplates['detail'],
+			'INFO_PAGE_URL' => $this->arParams['SEF_FOLDER'] . $urlTemplates['info'],
 			'VARIABLES' => $variables,
 		];
 
