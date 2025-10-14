@@ -2,6 +2,7 @@
 namespace Exam31\Ticket;
 
 use Bitrix\Main\Entity;
+use Bitrix\Main\ORM\Query\Filter\ConditionTree;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Localization\Loc;
 
@@ -39,4 +40,19 @@ class SomeElementTable extends Entity\DataManager
 		}
 		return $res;
 	}
+
+    public static function count($filter): int
+    {
+        $criteria = new ConditionTree();
+        if (isset($filter['%TITLE'])) {
+
+            $criteria->whereLike('TITLE', "%{$filter['%TITLE']}%");
+        }
+
+        try {
+            return self::query()->where($criteria)->queryCountTotal();
+        } catch (SystemException $e) {
+            throw new ServiceException('Failed to count projects', previous: $e);
+        }
+    }
 }

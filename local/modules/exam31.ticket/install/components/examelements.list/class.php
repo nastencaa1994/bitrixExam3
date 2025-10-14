@@ -7,11 +7,11 @@ use Bitrix\Main\Error;
 use Bitrix\Main\Errorable;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Main\ErrorableImplementation;
-use Bitrix\Main\UI\PageNavigation;
 use Bitrix\Main\Grid\Options as GridService;
 
 use Exam31\Ticket\SomeElementTable;
 use Exam31\Ticket\InfoTable;
+use Exam31\Ticket\PageNavigationFactory;
 
 
 class ExamElementsListComponent extends CBitrixComponent implements Errorable
@@ -21,29 +21,42 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
     protected const DEFAULT_PAGE_SIZE = 20;
     protected const GRID_ID = 'EXAM31_GRID_ELEMENT';
     protected const FILTER_ID = 'EXAM31_FILTER_ELEMENT';
+    protected array $filter = [];
+    protected object $gridService;
+    protected object $navigation;
     const SORTABLE_FIELDS = array('ID', 'ACTIVE');
 
     public function __construct($component = null)
     {
         parent::__construct($component);
         $this->errorCollection = new ErrorCollection();
-    }
 
-    public function onPrepareComponentParams($arParams): array
-    {
-        if (!Loader::includeModule('exam31.ticket')) {
-            $this->errorCollection->setError(
-                new Error(Loc::getMessage('EXAM31_TICKET_MODULE_NOT_INSTALLED'))
-            );
-            return $arParams;
+        $this->gridService = new GridService(static::GRID_ID);
+        $navigationParameters = $this->gridService->GetNavParams();
+        $PageNavigationFactory = new PageNavigationFactory();
+
+        $filterOptions = new \Bitrix\Main\UI\Filter\Options($this->arResult["filter"]['FILTER_ID']);
+
+        $filterFields = $filterOptions->getFilter([
+            ['id' => 'TITLE', 'type' => 'string', 'name' => 'TITLE'],
+        ]);
+
+
+        foreach ($filterFields as $key => $val) {
+            if ($key == 'TITLE') {
+                $this->filter['%TITLE'] = $val;
+            }
         }
 
-        $arParams['ELEMENT_COUNT'] = (int)$arParams['ELEMENT_COUNT'];
-        if ($arParams['ELEMENT_COUNT'] <= 0) {
-            $arParams['ELEMENT_COUNT'] = static::DEFAULT_PAGE_SIZE;
-        }
-        return $arParams;
+        echo '<pre>';
+
+        $this->navigation = $PageNavigationFactory->create(
+            $navigationParameters['nPageSize'], SomeElementTable::count($this->filter)
+        );
+
+        print_r($this->navigation->getPageSize());
     }
+
 
     private function displayErrors(): void
     {
@@ -59,7 +72,6 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
             return;
         }
 
-
         $this->arResult['filter'] = [
             'FILTER' => [
                 ['id' => 'TITLE',
@@ -70,33 +82,17 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
             ],
             'GRID_ID' => static::GRID_ID,
             'FILTER_ID' => static::FILTER_ID,
-            'ENABLE_LABEL' => true,
-            'DISABLE_SEARCH' => true,
-            'SHOW_ROW_CHECKBOXES' => false,
-            'SHOW_SELECTED_COUNTER' => false,
-            'AJAX_MODE' => 'Y',
-            'AJAX_OPTION_JUMP' => 'N',
-            'AJAX_OPTION_HISTORY' => 'N',
+            'ENABLE_LIVE_SEARCH' => true,
+            'ENABLE_LABEL' => true
         ];
 
-
-        $filterOptions = new \Bitrix\Main\UI\Filter\Options($this->arResult["filter"]['FILTER_ID']);
-
-        $filterFields = $filterOptions->getFilter([
-            ['id' => 'TITLE', 'type' => 'string', 'name' => 'TITLE'],
-        ]);
-
-        $filter = [];
-
-        foreach ($filterFields as $key => $val)
-        {
-            if($key == 'TITLE') {
-                $filter['%TITLE'] = $val;
-            }
-        }
-
-        $this->arResult['ITEMS'] = $this->getSomeElementList(['filter' => $filter]);
+        $params['filter'] = $this->filter;
+        $params['offset'] = $this->navigation->getCurrentPage() == 1 ? 0 : ($this->navigation->getCurrentPage() - 1) * $this->navigation->getPageSize();
+        $params['limit'] = $this->navigation->getPageSize();
+        $params['count_total'] = SomeElementTable::count($this->filter);
+        $this->arResult['ITEMS'] = $this->getSomeElementList($params);
         $this->arResult['grid'] = $this->prepareGrid($this->arResult['ITEMS']);
+        echo '</pre>';
 
         $this->includeComponentTemplate();
     }
@@ -131,43 +127,23 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 
     protected function prepareGrid($items): array
     {
-        $gridService = new GridService(static::GRID_ID);
 
-        $sort = $gridService->getSorting(['sort' => ['ID' => 'DESC']]);
-
-        $navigationParameters = $gridService->GetNavParams();
+        $sort = $this->gridService->getSorting(['sort' => ['ID' => 'DESC']]);
 
         return [
             'GRID_ID' => static::GRID_ID,
             'COLUMNS' => $this->getGridColums(),
             'ROWS' => $this->getGridRows($items),
-            'TOTAL_ROWS_COUNT' => count($items),
             'AJAX_MODE' => 'Y',
             'AJAX_OPTION_JUMP' => 'N',
-            'AJAX_OPTION_HISTORY' => 'N',
-            'PAGE_SIZES'=>[
-                'NAME' => 20,
-                'VALUE' => 20,
-            ],
-            'NAV_OBJECT'=> $this->pageNavigation(20, count($items)/20)
+            'CURRENT_PAGE' => $this->navigation->getCurrentPage(),
+            'NAV_PARAM_NAME' => 'number_page',
+            'AJAX_OPTION_HISTORY' => 'Y',
+            'NAV_OBJECT' => $this->navigation,
+            'SHOW_PAGESIZE' => true,
+            'PAGE_SIZES' => $this->navigation->getPageSizes(),
+            'TOTAL_ROWS_COUNT' => $this->navigation->getRecordCount(),
         ];
-    }
-
-
-    public function pageNavigation(int $size, int $count): PageNavigation
-    {
-        $pageNavigation = new PageNavigation('n');
-        $pageNavigation->setRecordCount($count);
-        $pageNavigation->setPageSizes([
-            ['NAME' => '5', 'VALUE' => '5'],
-            ['NAME' => '10', 'VALUE' => '10'],
-            ['NAME' => '20', 'VALUE' => '20'],
-            ['NAME' => '50', 'VALUE' => '50'],
-            ['NAME' => '100', 'VALUE' => '100'],
-        ]);
-        $pageNavigation->initFromUri();
-
-        return $pageNavigation;
     }
 
     protected function getGridColums(): array
@@ -217,6 +193,16 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
                     'ACTIVE' => $item["ACTIVE"] ? 'Да' : 'Нет',
                     'DETAIL' => $this->getDetailHTMLLink($item["DETAIL_URL"], Loc::getMessage('EXAM31_ELEMENTS_LIST_GRIG_COLUMN_DETAIL_NAME')),
                     'INFO' => $this->getDetailHTMLLink('/exam31/info/' . $item["ID"] . '/', $item["INFO"]),
+                ],
+                'actions' => [
+                    [
+                        'text' => Loc::getMessage('EXAM31_ELEMENTS_LIST_GRIG_COLUMN_DETAIL_NAME'),
+                        'href' => $item["DETAIL_URL"],
+                    ],
+                    [
+                        'text' => Loc::getMessage('EXAM31_ELEMENTS_LIST_GRIG_COLUMN_INFO_NAME'),
+                        'href' => '/exam31/info/' . $item["ID"] . '/', $item["INFO"],
+                    ],
                 ]
             ];
         }
