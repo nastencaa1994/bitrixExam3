@@ -168,14 +168,17 @@ class ExamElementsDetailComponent extends CBitrixComponent implements Controller
 			return [];
 		}
 
+        $res = SomeElementTable::getById($this->elementId)->fetch();
+
 		//Демо-данные полей для формы
 		$element = [
-			'ID' => 2,
-			'DATE_MODIFY' => (new DateTime())->toString(),
-			'TITLE' => 'TITLE 2',
-			'TEXT' => 'TEXT 2',
-			'ACTIVE' => 'Y'
+			'ID' => $res['ID'],
+			'DATE_MODIFY' => ($res['DATE_MODIFY'])->toString(),
+			'TITLE' => $res['TITLE'],
+			'TEXT' => $res['TEXT'],
+			'ACTIVE' => $res['ACTIVE'] ? 'Y' : 'N'
 		];
+
 
 		return $element;
 	}
@@ -184,13 +187,18 @@ class ExamElementsDetailComponent extends CBitrixComponent implements Controller
 	public function saveAction(array $data): AjaxJson
 	{
 		//Заглушка для отработки ajax
+
+        $file = fopen($_SERVER['DOCUMENT_ROOT'] .'/test.txt','a+');
+        fwrite($file, print_r($data, 1));
+        fclose($file);
+
 		$element = [];
 		$isUdpateSuccess = true;
 		try
 		{
 			if ($isUdpateSuccess)
 			{
-				$element['ID'] = '1';
+				$element['ID'] = $this->elementId;
 			}
 			else
 			{

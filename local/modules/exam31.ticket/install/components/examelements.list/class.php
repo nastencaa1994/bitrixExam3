@@ -48,16 +48,11 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
             }
         }
 
-        echo '<pre>';
-
         $this->navigation = $PageNavigationFactory->create(
             $navigationParameters['nPageSize'], SomeElementTable::count($this->filter)
         );
 
-        print_r($this->navigation->getPageSize());
     }
-
-
     private function displayErrors(): void
     {
         foreach ($this->getErrors() as $error) {

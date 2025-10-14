@@ -14,11 +14,11 @@ $APPLICATION->SetTitle(Loc::getMessage('EXAM31_ELEMENTS_LIST_PAGE_TITLE'));
 
 
 <?
-$APPLICATION->IncludeComponent(
-	'bitrix:main.ui.filter',
-	'',
-	$arResult["filter"]
-);
+//foreach ($arResult['toolbar']['buttons'] as $button) {
+//	Toolbar::addButton($button);
+//}
+
+Toolbar::addFilter($arResult['filter']);
 
 $APPLICATION->IncludeComponent(
 	'bitrix:main.ui.grid',
