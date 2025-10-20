@@ -87,6 +87,11 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
         $params['count_total'] = SomeElementTable::count($this->filter);
         $this->arResult['ITEMS'] = $this->getSomeElementList($params);
         $this->arResult['grid'] = $this->prepareGrid($this->arResult['ITEMS']);
+
+        $this->arResult['toolbar']['button']['addElement'] =  new \Bitrix\UI\Buttons\Button([
+            "link" => $this->getDetailPageUrl('0'),
+            "text" => "Добавить"
+        ]);
         echo '</pre>';
 
         $this->includeComponentTemplate();
@@ -117,6 +122,7 @@ class ExamElementsListComponent extends CBitrixComponent implements Errorable
 
             $preparedItems[] = $item;
         }
+
         return $preparedItems;
     }
 

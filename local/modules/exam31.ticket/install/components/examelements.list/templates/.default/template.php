@@ -18,6 +18,7 @@ $APPLICATION->SetTitle(Loc::getMessage('EXAM31_ELEMENTS_LIST_PAGE_TITLE'));
 //	Toolbar::addButton($button);
 //}
 
+Toolbar::addButton($arResult['toolbar']['button']['addElement']);
 Toolbar::addFilter($arResult['filter']);
 
 $APPLICATION->IncludeComponent(

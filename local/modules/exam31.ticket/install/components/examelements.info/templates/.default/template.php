@@ -4,6 +4,7 @@ use Bitrix\Main\Localization\Loc;
 use Bitrix\Main\Diag\Debug;
 
 \Bitrix\Main\UI\Extension::load('ui.sidepanel-content');
+$APPLICATION->ShowHead();
 
 /**
  * @var array $arParams

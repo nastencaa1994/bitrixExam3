@@ -1,4 +1,5 @@
 <?php
+
 use Bitrix\Main\SystemException;
 use Bitrix\Main\Type\DateTime;
 use Bitrix\Main\Loader;
@@ -14,221 +15,252 @@ use Exam31\Ticket\SomeElementTable;
 
 class ExamElementsDetailComponent extends CBitrixComponent implements Controllerable, Errorable
 {
-	use ErrorableImplementation;
-	private ?int $elementId = null;
-	
-	public function __construct($component = null)
-	{
-		parent::__construct($component);
-		$this->errorCollection = new ErrorCollection();
-	}
+    use ErrorableImplementation;
 
-	function onPrepareComponentParams($arParams)
-	{
-		if (!Loader::includeModule('exam31.ticket'))
-		{
-			$this->errorCollection->setError(
-				new Error(Loc::getMessage('EXAM31_TICKET_MODULE_NOT_INSTALLED'))
-			);
-			return $arParams;
-		}
+    private ?int $elementId = null;
 
-		if (isset($arParams['ELEMENT_ID']))
-		{
-			$this->elementId = (int) $arParams['ELEMENT_ID'] ?: null;
-		}
+    public function __construct($component = null)
+    {
+        parent::__construct($component);
+        $this->errorCollection = new ErrorCollection();
+    }
 
-		return $arParams;
-	}
+    function onPrepareComponentParams($arParams)
+    {
+        if (!Loader::includeModule('exam31.ticket')) {
+            $this->errorCollection->setError(
+                new Error(Loc::getMessage('EXAM31_TICKET_MODULE_NOT_INSTALLED'))
+            );
+            return $arParams;
+        }
 
-	private function displayErrors(): void
-	{
-		foreach ($this->getErrors() as $error)
-		{
-			ShowError($error->getMessage());
-		}
-	}
+        if (isset($arParams['ELEMENT_ID'])) {
+            $this->elementId = (int)$arParams['ELEMENT_ID'] ?: null;
+        }
 
-	function executeComponent(): void
-	{
-		if ($this->hasErrors())
-		{
-			$this->displayErrors();
-			return;
-		}
+        return $arParams;
+    }
 
-		//.default
-		$this->arResult['ELEMENT'] = $this->getEntityData();
+    private function displayErrors(): void
+    {
+        foreach ($this->getErrors() as $error) {
+            ShowError($error->getMessage());
+        }
+    }
 
-		//form
-		$this->arResult['form'] = $this->PrepareForm($this->arResult['ELEMENT']);
-		$this->arResult['LIST_PAGE_URL'] = $this->arParams['LIST_PAGE_URL'];
-		$this->arResult['DETAIL_PAGE_URL'] = $this->arParams['DETAIL_PAGE_URL'];
+    function executeComponent(): void
+    {
+        if ($this->hasErrors()) {
+            $this->displayErrors();
+            return;
+        }
 
-		$this->includeComponentTemplate();
+        //.default
+        $this->arResult['ELEMENT'] = $this->getEntityData();
 
-		global $APPLICATION;
-		$APPLICATION->SetTitle(Loc::getMessage('EXAM31_ELEMENT_DETAIL_TITLE', ['#ID#' => $this->arResult['ELEMENT']['ID']]));
-	}
+        //form
+        $this->arResult['form'] = $this->PrepareForm($this->arResult['ELEMENT']);
+        $this->arResult['LIST_PAGE_URL'] = $this->arParams['LIST_PAGE_URL'];
+        $this->arResult['DETAIL_PAGE_URL'] = $this->arParams['DETAIL_PAGE_URL'];
 
-	protected function PrepareForm($element): array
-	{
-		return [
-			'MODULE_ID' => null,
-			'CONFIG_ID' => null,
-			'GUID' => 'GUIDSomeElement',
-			'ENTITY_TYPE_NAME' => 'SomeElement',
+        $this->includeComponentTemplate();
 
-			'ENTITY_CONFIG_EDITABLE' => true,
-			'READ_ONLY' => false,
-			'ENABLE_CONFIG_CONTROL' => false,
+        global $APPLICATION;
+        $APPLICATION->SetTitle(Loc::getMessage('EXAM31_ELEMENT_DETAIL_TITLE', ['#ID#' => $this->arResult['ELEMENT']['ID']]));
+    }
 
-			'ENTITY_ID' => $this->elementId,
+    protected function PrepareForm($element): array
+    {
+        return [
+            'MODULE_ID' => null,
+            'CONFIG_ID' => null,
+            'GUID' => 'GUIDSomeElement',
+            'ENTITY_TYPE_NAME' => 'SomeElement',
 
-			'ENTITY_FIELDS' => $this->getEntityFields(),
-			'ENTITY_CONFIG' => $this->getEntityConfig(),
-			'ENTITY_DATA' => $element,
-			'ENTITY_CONTROLLERS' => [],
+            'ENTITY_CONFIG_EDITABLE' => true,
+            'READ_ONLY' => false,
+            'ENABLE_CONFIG_CONTROL' => false,
 
-			'COMPONENT_AJAX_DATA' => [
-				'COMPONENT_NAME' => $this->getName(),
-				'SIGNED_PARAMETERS' => $this->getSignedParameters()
-			],
-		];
-	}
-	protected function getEntityConfig(): array
-	{
-		//Демо-данные - конфигурация формы
-		return [
-			[
-				'type' => 'column',
-				'name' => 'default_column',
-				'elements' => [
-					[
-						'name' => 'main',
-						'title' => $this->elementId ? Loc::getMessage('EXAM31_ELEMENT_DETAIL_TITLE', ['#ID#' => $this->elementId]) : Loc::getMessage('EXAM31_ELEMENT_DETAIL_TITLE_NEW'),
+            'ENTITY_ID' => $this->elementId,
 
-						'type' => 'section',
-						'elements' => [
-							['name' => 'ID'],
-							['name' => 'DATE_MODIFY'],							
-							['name' => 'ACTIVE'],
-							['name' => 'TITLE'],
-							['name' => 'TEXT'],
-						]
-					],
-				]
-			]
-		];
-	}
+            'ENTITY_FIELDS' => $this->getEntityFields(),
+            'ENTITY_CONFIG' => $this->getEntityConfig(),
+            'ENTITY_DATA' => $element,
+            'ENTITY_CONTROLLERS' => [],
 
-	protected function getEntityFields(): array
-	{
-		$fieldsLabel = SomeElementTable::getFieldsDisplayLabel();
+            'COMPONENT_AJAX_DATA' => [
+                'COMPONENT_NAME' => $this->getName(),
+                'SIGNED_PARAMETERS' => $this->getSignedParameters()
+            ],
+        ];
+    }
 
-		//Демо-данные - поля формы
-		return [
-			[
-				'name' => 'ID',
-				'title' => $fieldsLabel['ID'] ?? 'ID',
-				'editable' => false,
-				'type' => 'text',
-			],
-			[
-				'name' => 'DATE_MODIFY',
-				'title' => $fieldsLabel['DATE_MODIFY'] ?? 'DATE_MODIFY',
-				'editable' => false,
-				'type' => 'datetime',
-			],			
-			[
-				'name' => 'ACTIVE',
-				'title' => $fieldsLabel['ACTIVE'] ?? 'ACTIVE',
-				'editable' => true,
-				'type' => 'boolean',
-			],
-			[
-				'name' => 'TITLE',
-				'title' => $fieldsLabel['TITLE'] ?? 'TITLE',
-				'editable' => true,
-				'type' => 'text',
-			],
-			[
-				'name' => 'TEXT',
-				'title' => $fieldsLabel['TEXT'] ?? 'TEXT',
-				'editable' => true,
-				'type' => 'textarea',
-			],
-		];
-	}
+    protected function getEntityConfig(): array
+    {
+        //Демо-данные - конфигурация формы
+        return [
+            [
+                'type' => 'column',
+                'name' => 'default_column',
+                'elements' => [
+                    [
+                        'name' => 'main',
+                        'title' => $this->elementId ? Loc::getMessage('EXAM31_ELEMENT_DETAIL_TITLE', ['#ID#' => $this->elementId]) : Loc::getMessage('EXAM31_ELEMENT_DETAIL_TITLE_NEW'),
 
-	protected function getEntityData(): array
-	{
-		if (!$this->elementId)
-		{
-			return [];
-		}
+                        'type' => 'section',
+                        'elements' => [
+                            ['name' => 'ID'],
+                            ['name' => 'DATE_MODIFY'],
+                            ['name' => 'ACTIVE'],
+                            ['name' => 'TITLE'],
+                            ['name' => 'TEXT'],
+                        ]
+                    ],
+                ]
+            ]
+        ];
+    }
+
+    protected function getEntityFields(): array
+    {
+        $fieldsLabel = SomeElementTable::getFieldsDisplayLabel();
+
+        //Демо-данные - поля формы
+        return [
+            [
+                'name' => 'ID',
+                'title' => $fieldsLabel['ID'] ?? 'ID',
+                'editable' => false,
+                'type' => 'text',
+            ],
+            [
+                'name' => 'DATE_MODIFY',
+                'title' => $fieldsLabel['DATE_MODIFY'] ?? 'DATE_MODIFY',
+                'editable' => false,
+                'type' => 'datetime',
+            ],
+            [
+                'name' => 'ACTIVE',
+                'title' => $fieldsLabel['ACTIVE'] ?? 'ACTIVE',
+                'editable' => true,
+                'type' => 'boolean',
+            ],
+            [
+                'name' => 'TITLE',
+                'title' => $fieldsLabel['TITLE'] ?? 'TITLE',
+                'editable' => true,
+                'type' => 'text',
+            ],
+            [
+                'name' => 'TEXT',
+                'title' => $fieldsLabel['TEXT'] ?? 'TEXT',
+                'editable' => true,
+                'type' => 'textarea',
+            ],
+        ];
+    }
+
+    protected function getEntityData(): array
+    {
+        if (!$this->elementId) {
+            return [];
+        }
 
         $res = SomeElementTable::getById($this->elementId)->fetch();
 
-		//Демо-данные полей для формы
-		$element = [
-			'ID' => $res['ID'],
-			'DATE_MODIFY' => ($res['DATE_MODIFY'])->toString(),
-			'TITLE' => $res['TITLE'],
-			'TEXT' => $res['TEXT'],
-			'ACTIVE' => $res['ACTIVE'] ? 'Y' : 'N'
-		];
+        //Демо-данные полей для формы
+        $element = [
+            'ID' => $res['ID'],
+            'DATE_MODIFY' => ($res['DATE_MODIFY'])->toString(),
+            'TITLE' => $res['TITLE'],
+            'TEXT' => $res['TEXT'],
+            'ACTIVE' => $res['ACTIVE'] ? 'Y' : 'N'
+        ];
+
+        return $element;
+    }
+
+    //Ajax
+    public function saveAction(array $data): AjaxJson
+    {
+
+        try {
+
+            $dateTime = new DateTime(date('d.m.Y H:i:s'));
+            $dateTime->format('d.m.Y H:i:s');
+
+            $active = [
+                'Y' => true,
+                'N' => false
+            ];
+
+            if ($this->elementId == 0) {
+
+                $params = [
+                    'DATE_MODIFY' => $dateTime,
+                    'TITLE' => $data['TITLE'] ,
+                    'TEXT' => $data['TEXT'],
+                    'ACTIVE' => $active[$data['ACTIVE']]
+                ];
+
+                $res = SomeElementTable::add($params);
 
 
-		return $element;
-	}
+                if ($res->isSuccess()) {
+                    return AjaxJson::createSuccess([
+                        'ENTITY_ID' => $res->getId(),
+                        'REDIRECT_URL' => $this->getDetailPageUrl($res->getId()),
+                    ]);
+                } else {
 
-	//Ajax
-	public function saveAction(array $data): AjaxJson
-	{
-		//Заглушка для отработки ajax
+                    $this->errorCollection->setError(new Error(Loc::getMessage('EXAM31_ELEMENT_DETAIL_ADD_ERROR')));
+                    return AjaxJson::createError($this->errorCollection);
+                }
 
-        $file = fopen($_SERVER['DOCUMENT_ROOT'] .'/test.txt','a+');
-        fwrite($file, print_r($data, 1));
-        fclose($file);
+            } else {
 
-		$element = [];
-		$isUdpateSuccess = true;
-		try
-		{
-			if ($isUdpateSuccess)
-			{
-				$element['ID'] = $this->elementId;
-			}
-			else
-			{
-				throw new SystemException(Loc::getMessage('EXAM31_ELEMENT_DETAIL_UPDATE_ERROR'));
-			}
+                $res = SomeElementTable::getById($this->elementId)->fetch();
 
-			return AjaxJson::createSuccess([
-				'ENTITY_ID' => $element['ID'],
-				//REDIRECT_URL необходим для корректной работы формы в слайдере
-				'REDIRECT_URL' => $this->getDetailPageUrl($element['ID']),
-			]);
-		}
-		catch (SystemException $exception)
-		{
-			$this->errorCollection->setError(new Error($exception->getMessage()));
-			return AjaxJson::createError($this->errorCollection);
-		}
-	}
+                $params = [
+                    'DATE_MODIFY' => $dateTime,
+                    'TITLE' => $data['TITLE'] ?? $res['TITLE'],
+                    'TEXT' => $data['TEXT'] ?? $res['TEXT'],
+                    'ACTIVE' => isset($data['ACTIVE']) ? $active[$data['ACTIVE']] : $res['ACTIVE']
+                ];
 
-	public function configureActions(): array
-	{
-		return [];
-	}
-	protected function listKeysSignedParameters(): array
-	{
-		return ['ELEMENT_ID', 'DETAIL_PAGE_URL'];
-	}
+                $res = SomeElementTable::update($this->elementId, $params);
 
-	protected function getDetailPageUrl(int $id): string
-	{
-		return str_replace('#ELEMENT_ID#', $id, $this->arParams['DETAIL_PAGE_URL']);
-	}
+                if ($res) {
+                    return AjaxJson::createSuccess([
+                        'ENTITY_ID' => $this->elementId,
+                        'REDIRECT_URL' => $this->getDetailPageUrl($this->elementId),
+                    ]);
+                } else {
+                    $this->errorCollection->setError(new Error(Loc::getMessage('EXAM31_ELEMENT_DETAIL_UPDATE_ERROR')));
+
+                    return AjaxJson::createError($this->errorCollection);
+                }
+
+            }
+
+        } catch (SystemException $exception) {
+            $this->errorCollection->setError(new Error($exception->getMessage()));
+            return AjaxJson::createError($this->errorCollection);
+        }
+    }
+
+    public function configureActions(): array
+    {
+        return [];
+    }
+
+    protected function listKeysSignedParameters(): array
+    {
+        return ['ELEMENT_ID', 'DETAIL_PAGE_URL'];
+    }
+
+    protected function getDetailPageUrl(int $id): string
+    {
+        return str_replace('#ELEMENT_ID#', $id, $this->arParams['DETAIL_PAGE_URL']);
+    }
 }
