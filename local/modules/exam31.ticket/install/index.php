@@ -198,6 +198,14 @@ class exam31_ticket extends CModule
 		);
 
         $eventManager->registerEventHandlerCompatible(
+            'main',
+            'OnProlog',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\Handler',
+            'addRegEvents'
+        );
+
+        $eventManager->registerEventHandlerCompatible(
 			'main',
 			'OnEpilog',
 			$this->MODULE_ID,

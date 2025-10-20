@@ -2,6 +2,7 @@
 namespace Exam31\Ticket;
 
 use Bitrix\Main\Page\Asset;
+use Bitrix\Main\EventManager;
 
 class Handler
 {
@@ -30,6 +31,17 @@ class Handler
             
             });
             </script>"
+
+        );
+    }
+
+    public static function addRegEvents()
+    {
+        $eventManager = EventManager::getInstance();
+        $eventManager->addEventHandler(
+            'main',
+            'OnBeforeCrmDealUpdate',
+            ['Exam31\Ticket\CRM\Deal', 'blockFiled']
 
         );
     }
