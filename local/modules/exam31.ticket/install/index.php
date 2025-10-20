@@ -196,6 +196,14 @@ class exam31_ticket extends CModule
 			'Exam31\\Ticket\\SidePanel\\SideConfiguration',
 			'addUrlSidePanel'
 		);
+
+        $eventManager->registerEventHandlerCompatible(
+			'main',
+			'OnEpilog',
+			$this->MODULE_ID,
+			'Exam31\\Ticket\\Handler',
+			'addButtonMenu'
+		);
 	}
 
 	public function UnInstallEvents(): void
@@ -209,6 +217,22 @@ class exam31_ticket extends CModule
 			'Exam31\\Ticket\\ExamFieldType',
 			'getUserTypeDescription'
 		);
+
+        $eventManager->unRegisterEventHandler(
+            'main',
+            'OnProlog',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\SidePanel\\SideConfiguration',
+            'addUrlSidePanel'
+        );
+
+        $eventManager->unRegisterEventHandler(
+            'main',
+            'OnEpilog',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\Handler',
+            'getUserTypeDescription'
+        );
 	}
 
 	public function InstallFiles(): void
