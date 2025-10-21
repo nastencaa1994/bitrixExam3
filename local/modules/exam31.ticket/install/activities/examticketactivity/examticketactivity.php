@@ -7,6 +7,8 @@ use Bitrix\Bizproc\FieldType;
 use Bitrix\Main\ErrorCollection;
 use Bitrix\Bizproc\Activity\PropertiesDialog;
 use Bitrix\Main\Text\HtmlFilter;
+use Exam31\Ticket\SomeElementTable;
+use Bitrix\Main\Loader;
 
 class CBPExamTicketActivity extends BaseActivity
 {
@@ -16,14 +18,18 @@ class CBPExamTicketActivity extends BaseActivity
 
 		$this->arProperties = [
 			'ID' => 0,
-
-			//return
 			'DEMO_VALUE' => null,
 		];
 
 		$this->SetPropertiesTypes([
-			'DEMO_VALUE' => ['Type' => FieldType::STRING],
+			//'DEMO_VALUE' => ['Type' => FieldType::STRING],
+			'DATE_MODIFY' => ['Type' => FieldType::DATETIME],
+			'TEXT' => ['Type' => FieldType::STRING],
+			'TITLE' => ['Type' => FieldType::STRING],
+			'ACTIVE' => ['Type' => FieldType::BOOL],
 		]);
+
+        Loader::includeModule('exam31.ticket');
 
 	}
 
@@ -40,16 +46,24 @@ class CBPExamTicketActivity extends BaseActivity
 		/Демо
 		*/
 		$elementId = (int) $this->preparedProperties["ID"];
-		if($elementId < 100)
+
+        $res = SomeElementTable::getById($elementId)->fetch();
+
+        if($res)
 		{
 			//Значения найдены
-			$this->preparedProperties['DEMO_VALUE'] = HtmlFilter::encode('DEMO_VALUE');
+			$this->preparedProperties['DATE_MODIFY'] = $res['DATE_MODIFY'];
+			$this->preparedProperties['TITLE'] = $res['TITLE'];
+			$this->preparedProperties['TEXT'] = $res['TEXT'];
+			$this->preparedProperties['ACTIVE'] = $res['ACTIVE'];
+
+			//$this->preparedProperties['DEMO_VALUE'] = HtmlFilter::encode('DEMO_VALUE');
 		}
 		else
 		{
 			//Если нет данных, отдаем пустые значения
 			$this->preparedProperties['ID'] = 0;
-			$this->preparedProperties['DEMO_VALUE'] = '';
+            $this->preparedProperties['ELEMENT_FIELDS'] = '';
 
 			//Пишем в журнал выполнения БП что данные не нашли
 			$this->log(
@@ -76,8 +90,6 @@ class CBPExamTicketActivity extends BaseActivity
 				'FieldName' => 'ID',
 				'Type' => FieldType::INT,
 				'Required' => true,
-				'Default' => '',
-				'Options' => [],
 			],
 		];
 		
