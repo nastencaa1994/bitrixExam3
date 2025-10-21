@@ -193,17 +193,17 @@ class exam31_ticket extends CModule
 			'main',
 			'OnProlog',
 			$this->MODULE_ID,
+			'Exam31\\Ticket\\Handler',
+			'addEvent'
+		);
+
+		$eventManager->registerEventHandlerCompatible(
+			'main',
+			'OnProlog',
+			$this->MODULE_ID,
 			'Exam31\\Ticket\\SidePanel\\SideConfiguration',
 			'addUrlSidePanel'
 		);
-
-        $eventManager->registerEventHandlerCompatible(
-            'main',
-            'OnProlog',
-            $this->MODULE_ID,
-            'Exam31\\Ticket\\Handler',
-            'addRegEvents'
-        );
 
         $eventManager->registerEventHandlerCompatible(
 			'main',
@@ -232,6 +232,14 @@ class exam31_ticket extends CModule
             $this->MODULE_ID,
             'Exam31\\Ticket\\SidePanel\\SideConfiguration',
             'addUrlSidePanel'
+        );
+
+        $eventManager->unRegisterEventHandler(
+            'main',
+            'OnProlog',
+            $this->MODULE_ID,
+            'Exam31\\Ticket\\Handler',
+            'addEvent'
         );
 
         $eventManager->unRegisterEventHandler(

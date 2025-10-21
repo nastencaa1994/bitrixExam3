@@ -2,7 +2,6 @@
 namespace Exam31\Ticket;
 
 use Bitrix\Main\Page\Asset;
-use Bitrix\Main\EventManager;
 
 class Handler
 {
@@ -35,14 +34,23 @@ class Handler
         );
     }
 
-    public static function addRegEvents()
+    public static function addEvent()
     {
-        $eventManager = EventManager::getInstance();
-        $eventManager->addEventHandler(
-            'main',
-            'OnBeforeCrmDealUpdate',
-            ['Exam31\Ticket\CRM\Deal', 'blockFiled']
+        $eventManager = \Bitrix\Main\EventManager::getInstance();
 
+        $eventManager->addEventHandlerCompatible(
+            'crm',
+            'OnBeforeCrmDealUpdate',
+            function( &$arFields )
+            {
+                if(isset($arFields["UF_CRM_1760972018047"])) {
+
+                    $arFields['RESULT_MESSAGE'] ='Вы не можете изменить значение поля «Защищенное поле»';
+                    return false;
+                } else {
+                    return true;
+                }
+            }
         );
     }
 }
