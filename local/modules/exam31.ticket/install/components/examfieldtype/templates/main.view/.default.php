@@ -7,9 +7,7 @@ defined('B_PROLOG_INCLUDED') || die;
 	foreach ($arResult['PREPARED_VALUES'] as $item)
 	{ ?>
 		<span class="fields string field-item">
-			<?php
-			print $item['FORMATTED_VALUE'];
-			?>
+            <a href="<?=$item['URL_VALUE']?>"><?=$item['FORMATTED_VALUE']?></a>
 		</span>
 		<?php
 	} ?>

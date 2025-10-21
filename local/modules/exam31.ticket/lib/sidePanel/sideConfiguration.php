@@ -27,6 +27,12 @@ class SideConfiguration
 			],
         		loader: "crm:entity-details-loader"
 		},
+		{
+			condition: [ 
+				new RegExp("/exam31training/info/[0-9]+/", "i") 
+			],
+        		loader: "crm:entity-details-loader"
+		},
 		
 	]
 });

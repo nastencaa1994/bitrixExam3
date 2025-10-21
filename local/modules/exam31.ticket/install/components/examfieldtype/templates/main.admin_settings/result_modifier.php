@@ -12,6 +12,7 @@ if (
 elseif (isset($arResult['userField']) && $arResult['userField'])
 {
 	$values['FORMAT'] = $arResult['userField']['SETTINGS']['FORMAT'];
+	$values['URL'] = $arResult['userField']['SETTINGS']['URL'];
 }
 
 $arResult['VALUES'] = $values;

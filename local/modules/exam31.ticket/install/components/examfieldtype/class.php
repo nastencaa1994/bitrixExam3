@@ -5,6 +5,7 @@ use Exam31\Ticket\ExamFieldType;
 use Bitrix\Main\Component\BaseUfComponent;
 use Bitrix\Main\Loader;
 use Bitrix\Main\Text\HtmlFilter;
+use Exam31\Ticket\SomeElementTable;
 
 class SomeElementFieldComponent extends BaseUfComponent
 {
@@ -22,6 +23,7 @@ class SomeElementFieldComponent extends BaseUfComponent
 
 	public function prepareValue($value)
 	{
+
 		$preparedValue = [
 			'VALUE' => (int) $value,
 		];
@@ -33,6 +35,22 @@ class SomeElementFieldComponent extends BaseUfComponent
 			$preparedValue['VALUE'],
 			$formatValueTemplate
 		);
+
+        $res = SomeElementTable::getById($value)->fetch();
+
+        $preparedValue['FORMATTED_VALUE'] = str_replace(
+            '#TITLE#',
+            $res['TITLE'],
+            $formatValueTemplate
+        );
+
+        $formatValueTemplate = HtmlFilter::encode((string) $this->arResult['userField']['SETTINGS']['URL'] ?? '#ID#');
+
+        $preparedValue['URL_VALUE'] = str_replace(
+            '#ID#',
+            $preparedValue['VALUE'],
+            $formatValueTemplate
+        );
 
 		return $preparedValue;
 
